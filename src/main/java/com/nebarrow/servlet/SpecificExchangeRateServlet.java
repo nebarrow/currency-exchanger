@@ -25,7 +25,9 @@ public class SpecificExchangeRateServlet extends HttpServlet {
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (req.getMethod().equalsIgnoreCase("PATCH")) {
             doPatch(req, resp);
+            return;
         }
+        super.service(req, resp);
     }
 
     @Override
