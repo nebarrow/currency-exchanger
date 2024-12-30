@@ -15,6 +15,12 @@
     </filter>
 
     <filter>
+        <filter-name>ErrorFilter</filter-name>
+        <filter-class>com.nebarrow.filter.ErrorFilter</filter-class>
+    </filter>
+
+
+    <filter>
         <filter-name>CurrenciesFilter</filter-name>
         <filter-class>com.nebarrow.filter.CurrenciesFilter</filter-class>
     </filter>
@@ -37,11 +43,6 @@
     <filter>
         <filter-name>ExchangeRatesFilter</filter-name>
         <filter-class>com.nebarrow.filter.ExchangeRatesFilter</filter-class>
-    </filter>
-
-    <filter>
-        <filter-name>ErrorFilter</filter-name>
-        <filter-class>com.nebarrow.filter.ErrorFilter</filter-class>
     </filter>
 
     <filter-mapping>
