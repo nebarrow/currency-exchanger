@@ -93,10 +93,10 @@ public class ExchangeRatesDao implements ICrudDao<ExchangeRate> {
         return INSTANCE;
     }
 
-    public Optional<ExchangeRate> findRateByCodes(String baseName, String targetName) throws DaoException {
+    public Optional<ExchangeRate> findRateByCodes(ExchangeRate exchangeRate) throws DaoException {
         try (var connection = ConnectionManager.get();
              var statement = connection.prepareStatement(SQL_FIND_RATE_BY_NAMES)) {
-            setParameters(statement, baseName, targetName, targetName, baseName, baseName, targetName);
+            setParameters(statement, exchangeRate.getBaseCurrencyCode(), exchangeRate.getTargetCurrencyCode(), exchangeRate.getTargetCurrencyCode(), exchangeRate.getBaseCurrencyCode(), exchangeRate.getBaseCurrencyCode(), exchangeRate.getTargetCurrencyCode());
             var result = statement.executeQuery();
             if (result.next()) {
                 return Optional.of(ExchangeRate.builder()
@@ -107,7 +107,7 @@ public class ExchangeRatesDao implements ICrudDao<ExchangeRate> {
             }
             return Optional.empty();
         } catch (SQLException e) {
-            throw new DaoException("Can't find rate by these names: " + baseName + " to " + targetName, e);
+            throw new DaoException("Can't find rate by these names: " + exchangeRate.getBaseCurrencyCode() + " to " + exchangeRate.getTargetCurrencyCode(), e);
         }
     }
 
@@ -191,7 +191,7 @@ public class ExchangeRatesDao implements ICrudDao<ExchangeRate> {
             return Currency.builder()
                     .id(result.getLong(1))
                     .code(result.getString(2))
-                    .fullname(result.getString(3))
+                    .name(result.getString(3))
                     .sign(result.getString(4))
                     .build();
         } catch (SQLException e) {
