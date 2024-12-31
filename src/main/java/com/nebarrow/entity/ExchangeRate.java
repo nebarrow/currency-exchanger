@@ -16,11 +16,7 @@ public class ExchangeRate {
     private Currency targetCurrency;
     private Double rate;
 
-    public Long getBaseCurrencyId() {
-        return baseCurrency.getId();
-    }
+    public String getBaseCurrencyCode() { return baseCurrency.getCode(); }
 
-    public Long getTargetCurrencyId() {
-        return targetCurrency.getId();
-    }
+    public String getTargetCurrencyCode() { return targetCurrency.getCode(); }
 }
