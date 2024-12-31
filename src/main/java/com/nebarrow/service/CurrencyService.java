@@ -1,11 +1,11 @@
 package com.nebarrow.service;
 
 import com.nebarrow.dao.CurrencyDao;
-import com.nebarrow.dto.CurrenciesDto;
-import com.nebarrow.dto.PostCurrencyDto;
+import com.nebarrow.dto.response.CurrenciesResponse;
+import com.nebarrow.dto.request.CurrencyRequest;
 import com.nebarrow.exception.ElementAlreadyExistsException;
 import com.nebarrow.exception.ElementNotFoundException;
-import com.nebarrow.mapper.CurrencyMapper;
+import com.nebarrow.mapper.ICurrencyMapper;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -15,30 +15,27 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CurrencyService {
 
+    private final ICurrencyMapper MAPPER = ICurrencyMapper.INSTANCE;
     private final CurrencyDao currencyDao;
 
-    public List<CurrenciesDto> getAllCurrencies() {
+    public List<CurrenciesResponse> getAllCurrencies() {
         return currencyDao.findAll().stream()
-                .map(CurrencyMapper::toDto)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .map(MAPPER::toDto)
                 .collect(Collectors.toList());
     }
 
-    public CurrenciesDto getCurrency(String name) {
-        return currencyDao.findByName(name).stream()
-                .map(CurrencyMapper::toDto)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+    public CurrenciesResponse getCurrency(CurrencyRequest currencyRequest) {
+        return currencyDao.findByName(currencyRequest.name()).stream()
+                .map(MAPPER::toDto)
                 .findFirst()
                 .orElseThrow(() -> new ElementNotFoundException("Currency not found"));
     }
 
-    public CurrenciesDto create(PostCurrencyDto currencyDto) {
-        var currency = CurrencyMapper.toEntity(currencyDto);
+    public CurrenciesResponse create(CurrencyRequest currencyDto) {
+        var currency = MAPPER.toEntity(currencyDto);
         if (currencyDao.findByName(currency.getCode()).isPresent()) {
             throw new ElementAlreadyExistsException("Currency with this code already exists");
         }
-        return CurrencyMapper.toDto(currencyDao.create(currency)).get();
+        return MAPPER.toDto(currencyDao.create(currency));
     }
 }

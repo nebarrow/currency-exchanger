@@ -1,61 +1,57 @@
 package com.nebarrow.service;
 
 import com.nebarrow.dao.ExchangeRatesDao;
-import com.nebarrow.dto.ExchangeRatesDto;
-import com.nebarrow.dto.PostExchangeRatesDto;
+import com.nebarrow.dto.response.ExchangeRatesResponse;
+import com.nebarrow.dto.request.ExchangeRateRequest;
 import com.nebarrow.exception.ElementAlreadyExistsException;
 import com.nebarrow.exception.ElementNotFoundException;
-import com.nebarrow.mapper.ExchangeRatesMapper;
+import com.nebarrow.mapper.IExchangeRatesMapper;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class ExchangeRatesService {
 
+    private final IExchangeRatesMapper MAPPER = IExchangeRatesMapper.INSTANCE;
     private final ExchangeRatesDao exchangeRatesDao;
 
-    public List<ExchangeRatesDto> getAll() {
+    public List<ExchangeRatesResponse> getAll() {
         return exchangeRatesDao.findAll().stream()
-                .map(ExchangeRatesMapper::toDto)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .map(MAPPER::toDto)
                 .collect(Collectors.toList());
     }
 
-    public ExchangeRatesDto getByName(String name) {
+    public ExchangeRatesResponse getByName(String name) {
         return exchangeRatesDao.findByName(name).stream()
-                .map(ExchangeRatesMapper::toDto)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .map(MAPPER::toDto)
                 .findFirst()
                 .orElseThrow(() -> new ElementNotFoundException("This exchange rate not found"));
     }
 
-    public ExchangeRatesDto create(PostExchangeRatesDto exchangeRatesDto) {
-        var exchangeRate = ExchangeRatesMapper.toEntity(exchangeRatesDto);
+    public ExchangeRatesResponse create(ExchangeRateRequest exchangeRatesDto) {
+        var exchangeRate = MAPPER.toEntity(exchangeRatesDto);
 
         if (isExchangeRateExistsByConcatenate(exchangeRatesDto)) {
             throw new ElementAlreadyExistsException("This exchange rate already exists");
         }
-        return ExchangeRatesMapper.toDto(exchangeRatesDao.create(exchangeRate)).get();
+        return MAPPER.toDto(exchangeRatesDao.create(exchangeRate));
     }
 
-    public ExchangeRatesDto update(PostExchangeRatesDto exchangeRatesDto) {
-        var exchangeRate = ExchangeRatesMapper.toEntity(exchangeRatesDto);
-        if (!isExchangeRateExistsByConcatenate(exchangeRatesDto)) {
+    public ExchangeRatesResponse update(ExchangeRateRequest exchangeRates) {
+        var exchangeRate = MAPPER.toEntity(exchangeRates);
+        if (!isExchangeRateExistsByConcatenate(exchangeRates)) {
             throw new ElementNotFoundException("This exchange rate not found");
         }
         return exchangeRatesDao.update(exchangeRate).stream()
-                .flatMap(rate -> ExchangeRatesMapper.toDto(rate).stream())
+                .map(MAPPER::toDto)
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Can't update this exchange rate"));
     }
 
-    private boolean isExchangeRateExistsByConcatenate(PostExchangeRatesDto exchangeRatesDto) {
-        var concatenatedCodes = exchangeRatesDto.baseCurrency().getCode() + exchangeRatesDto.targetCurrency().getCode();
+    private boolean isExchangeRateExistsByConcatenate(ExchangeRateRequest exchangeRates) {
+        var concatenatedCodes = exchangeRates.baseCurrency() + exchangeRates.targetCurrency();
         return exchangeRatesDao.findByName(concatenatedCodes).isPresent();
     }
 }
