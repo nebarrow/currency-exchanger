@@ -1,6 +1,7 @@
 package com.nebarrow.servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nebarrow.dto.request.CurrencyRequest;
 import com.nebarrow.service.CurrencyService;
 import com.nebarrow.util.ServiceLocator;
 import jakarta.servlet.annotation.WebServlet;
@@ -24,8 +25,8 @@ public class SpecificCurrencyServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String code = req.getPathInfo().substring(1);
-        var currency = currencyService.getCurrency(code);
+        var currencyRequest = req.getAttribute("currency");
+        var currency = currencyService.getCurrency((CurrencyRequest) currencyRequest);
         objectMapper.writeValue(resp.getWriter(), currency);
     }
 }
