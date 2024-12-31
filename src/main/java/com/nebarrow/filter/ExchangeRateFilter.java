@@ -65,6 +65,7 @@ public class ExchangeRateFilter extends HttpFilter {
             HttpErrorSender.sendError(res, validationResult.getMessage(), SC_BAD_REQUEST);
             return;
         }
+        req.setAttribute("exchangeRate", code);
         chain.doFilter(req, res);
     }
 }
