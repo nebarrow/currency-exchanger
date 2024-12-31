@@ -1,44 +1,44 @@
 package com.nebarrow.filter;
 
+import com.nebarrow.dto.request.ExchangeRateRequest;
 import com.nebarrow.util.HttpErrorSender;
+import com.nebarrow.util.Validator;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import com.nebarrow.validation.ParametersValidator;
+import static jakarta.servlet.http.HttpServletResponse.*;
+
 
 import java.io.IOException;
 
 public class ExchangeRatesFilter extends HttpFilter {
+    private static final String ALLOWED_METHODS = "GET, POST";
 
     @Override
     protected void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
-        if (req.getMethod().equals("GET")) {
-            chain.doFilter(req, res);
-            return;
-        } else if (req.getMethod().equals("POST")) {
-            var baseCode = req.getParameter("baseCurrencyCode");
-            var targetCode = req.getParameter("targetCurrencyCode");
-            var rate = Double.parseDouble(req.getParameter("rate"));
-
-            var baseCodeMessageError = ParametersValidator.checkCode(baseCode);
-            var targetCodeMessageError = ParametersValidator.checkCode(targetCode);
-            var rateMessageError = ParametersValidator.checkRate(String.valueOf(rate));
-
-            if (!baseCodeMessageError.isEmpty()) {
-                HttpErrorSender.sendError(res, baseCodeMessageError, HttpServletResponse.SC_BAD_REQUEST);
-                return;
-            } else if (!targetCodeMessageError.isEmpty()) {
-                HttpErrorSender.sendError(res, targetCodeMessageError, HttpServletResponse.SC_BAD_REQUEST);
-                return;
-            } else if (!rateMessageError.isEmpty()) {
-                HttpErrorSender.sendError(res, rateMessageError, HttpServletResponse.SC_BAD_REQUEST);
-                return;
+        switch (req.getMethod()) {
+            case "GET" -> chain.doFilter(req, res);
+            case "POST" -> handlePostRequest(req, res, chain);
+            default -> {
+                res.setHeader("Allow", ALLOWED_METHODS);
+                res.setStatus(SC_METHOD_NOT_ALLOWED);
             }
-            chain.doFilter(req, res);
+        }
+    }
+
+    private void handlePostRequest(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws ServletException, IOException {
+        ExchangeRateRequest exchangeRatesRequestDto = new ExchangeRateRequest(
+                req.getParameter("baseCurrencyCode"),
+                req.getParameter("targetCurrencyCode"),
+                Double.parseDouble(req.getParameter("rate")));
+        var validationResult = Validator.validate(exchangeRatesRequestDto);
+        if (validationResult.hasErrors()) {
+            HttpErrorSender.sendError(res, validationResult.getMessage(), SC_BAD_REQUEST);
             return;
         }
-        res.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+        req.setAttribute("exchangeRates", exchangeRatesRequestDto);
+        chain.doFilter(req, res);
     }
 }
