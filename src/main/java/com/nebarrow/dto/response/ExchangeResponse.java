@@ -1,10 +1,10 @@
-package com.nebarrow.dto;
+package com.nebarrow.dto.response;
 
 import com.nebarrow.entity.Currency;
 import lombok.Builder;
 
 @Builder
-public record ExchangeDto(
+public record ExchangeResponse(
         Currency baseCurrency,
         Currency targetCurrency,
         double rate,
