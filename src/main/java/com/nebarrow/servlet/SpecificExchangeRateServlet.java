@@ -35,8 +35,8 @@ public class SpecificExchangeRateServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String exchangeRateName = req.getPathInfo().substring(1);
-        var exchangeRate = exchangeRatesService.getByName(exchangeRateName);
+        var exchangeRateName = req.getAttribute("exchangeRate");
+        var exchangeRate = exchangeRatesService.getByName((String) exchangeRateName);
         objectMapper.writeValue(resp.getWriter(), exchangeRate);
     }
 
