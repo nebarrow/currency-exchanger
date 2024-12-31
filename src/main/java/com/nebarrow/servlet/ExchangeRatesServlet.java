@@ -1,9 +1,7 @@
 package com.nebarrow.servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nebarrow.dto.PostExchangeRatesDto;
-import com.nebarrow.entity.Currency;
-import com.nebarrow.service.CurrencyService;
+import com.nebarrow.dto.request.ExchangeRateRequest;
 import com.nebarrow.service.ExchangeRatesService;
 import com.nebarrow.util.ServiceLocator;
 import jakarta.servlet.ServletException;
@@ -34,14 +32,8 @@ public class ExchangeRatesServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        var baseCode = req.getParameter("baseCurrencyCode");
-        var targetCode = req.getParameter("targetCurrencyCode");
-        var rate = Double.parseDouble(req.getParameter("rate"));
-        var result = exchangeRatesService.create(
-                new PostExchangeRatesDto(
-                        Currency.builder().code(baseCode).build(),
-                        Currency.builder().code(targetCode).build(),
-                        rate));
+        var exchangeRatesRequest = req.getAttribute("exchangeRates");
+        var result = exchangeRatesService.create((ExchangeRateRequest) exchangeRatesRequest);
         objectMapper.writeValue(resp.getWriter(), result);
         resp.setStatus(HttpServletResponse.SC_CREATED);
     }

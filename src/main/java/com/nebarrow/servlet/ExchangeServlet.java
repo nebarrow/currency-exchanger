@@ -1,6 +1,7 @@
 package com.nebarrow.servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nebarrow.dto.request.ExchangeRequest;
 import com.nebarrow.service.ExchangeService;
 import com.nebarrow.util.ServiceLocator;
 import jakarta.servlet.ServletException;
@@ -25,10 +26,8 @@ public class ExchangeServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        var baseName = req.getParameter("from");
-        var targetName = req.getParameter("to");
-        var amount = Double.parseDouble(req.getParameter("amount"));
-        var exchange = exchangeService.exchangeCurrenciesWithAmount(baseName, targetName, amount);
+        var exchangeRequest = req.getAttribute("exchangeRequest");
+        var exchange = exchangeService.exchangeCurrenciesWithAmount((ExchangeRequest) exchangeRequest);
         objectMapper.writeValue(resp.getWriter(), exchange);
     }
 }
