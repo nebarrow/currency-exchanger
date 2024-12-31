@@ -33,7 +33,7 @@ public class CurrencyDao implements ICrudDao<Currency> {
     public Currency create(Currency model) {
         try (var connection = ConnectionManager.get();
              var statement = connection.prepareStatement(SQL_CREATE_CURRENCY)) {
-            setParameters(statement, model.getFullname(), model.getCode(), model.getSign());
+            setParameters(statement, model.getName(), model.getCode(), model.getSign());
             statement.executeUpdate();
             var result = statement.getGeneratedKeys();
             long generatedId = result.getLong(1);
@@ -41,7 +41,7 @@ public class CurrencyDao implements ICrudDao<Currency> {
                 return Currency.builder()
                         .id(generatedId)
                         .code(model.getCode())
-                        .fullname(model.getFullname())
+                        .name(model.getName())
                         .sign(model.getSign())
                         .build();
             } throw new DaoException("Failed to retrieve generated ID for the new Currency");
@@ -55,7 +55,7 @@ public class CurrencyDao implements ICrudDao<Currency> {
     public Optional<Currency> update(Currency currency) {
         try (var connection = ConnectionManager.get();
              var statement = connection.prepareStatement(SQL_UPDATE_CURRENCY)) {
-            setParameters(statement, currency.getFullname(), currency.getCode(), currency.getSign(), currency.getId());
+            setParameters(statement, currency.getName(), currency.getCode(), currency.getSign(), currency.getId());
             var result = statement.executeUpdate();
             if (result > 0) {
                 return Optional.of(currency);
@@ -75,7 +75,7 @@ public class CurrencyDao implements ICrudDao<Currency> {
             while (result.next()) {
                 currencies.add(Currency.builder()
                         .id(result.getLong(1))
-                        .fullname(result.getString(2))
+                        .name(result.getString(2))
                         .code(result.getString(3))
                         .sign(result.getString(4))
                         .build());
@@ -114,7 +114,7 @@ public class CurrencyDao implements ICrudDao<Currency> {
     private Currency buildCurrencyWithParameters(long id, String fullname, String code, String sign) {
         return Currency.builder()
                 .id(id)
-                .fullname(fullname)
+                .name(fullname)
                 .code(code)
                 .sign(sign)
                 .build();
