@@ -11,6 +11,6 @@ import lombok.*;
 public class Currency {
     private Long id;
     private String code;
-    private String fullname;
+    private String name;
     private String sign;
 }
