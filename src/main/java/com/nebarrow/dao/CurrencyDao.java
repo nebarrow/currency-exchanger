@@ -14,7 +14,6 @@ import java.util.function.Function;
 
 public class CurrencyDao implements ICrudDao<Currency> {
 
-    private static final CurrencyDao INSTANCE = new CurrencyDao();
     private final String SQL_GET_CURRENCY_BY_NAME = "SELECT id, name, code, sign FROM currencies WHERE code=?";
     private final String SQL_CREATE_CURRENCY = "INSERT INTO currencies(name, code, sign) VALUES (?, ?, ?)";
     private final String SQL_UPDATE_CURRENCY = "UPDATE currencies SET name=?, code=?, sign=? WHERE id=?";
@@ -23,11 +22,7 @@ public class CurrencyDao implements ICrudDao<Currency> {
     private final boolean SUCCESS = true;
     private final boolean FAILURE = false;
 
-    private CurrencyDao() {}
-
-    public static CurrencyDao getInstance() {
-        return INSTANCE;
-    }
+    public CurrencyDao() {}
 
     @Override
     public Currency create(Currency model) {

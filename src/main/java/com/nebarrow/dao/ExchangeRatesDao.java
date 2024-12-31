@@ -84,13 +84,7 @@ public class ExchangeRatesDao implements ICrudDao<ExchangeRate> {
             """;
 
 
-    private static final ExchangeRatesDao INSTANCE = new ExchangeRatesDao();
-
-    private ExchangeRatesDao() {
-    }
-
-    public static ExchangeRatesDao getInstance() {
-        return INSTANCE;
+    public ExchangeRatesDao() {
     }
 
     public Optional<ExchangeRate> findRateByCodes(ExchangeRate exchangeRate) throws DaoException {
